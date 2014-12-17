@@ -144,6 +144,7 @@
 
 					// set the formatted value
 					ele.val(settings.format_output(tim, mini, meri));
+					ele.change();
 				}
 
 				if (close) {
