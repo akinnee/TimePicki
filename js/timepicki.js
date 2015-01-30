@@ -6,6 +6,9 @@
 
 	$.fn.timepicki = function(options) {
 
+		// for saving the state of the selected time
+		var state = {};
+
 		var defaults = {
 			format_output: function(tim, mini, meri) {
 				return tim + " : " + mini + " : " + meri;
@@ -135,17 +138,28 @@
 				var mini = ele_next.find(".mi_tx input").val();
 				var meri = ele_next.find(".mer_tx input").val();
 
-				if (tim.length !== 0 && mini.length !== 0 && meri.length !== 0) {
-					// store the value so we can set the initial value
-					// next time the picker is opened
-					ele.attr('data-timepicki-tim', tim);
-					ele.attr('data-timepicki-mini', mini);
-					ele.attr('data-timepicki-meri', meri);
-
-					// set the formatted value
-					ele.val(settings.format_output(tim, mini, meri));
-					ele.change();
+				// use previous state or defaults
+				if (!tim.length) {
+					tim = state.ti;
 				}
+				if (!mini.length) {
+					mini = state.mi;
+				}
+				if (!meri.length) {
+					meri = state.mer;
+				}
+
+				// store the value so we can set the initial value
+				// next time the picker is opened
+				ele.attr('data-timepicki-tim', tim);
+				ele.attr('data-timepicki-mini', mini);
+				ele.attr('data-timepicki-meri', meri);
+
+				// set the formatted value
+				ele.val(settings.format_output(tim, mini, meri));
+				ele.trigger('keyup');
+				ele.trigger('keydown');
+				ele.change();
 
 				if (close) {
 					close_timepicki();
@@ -181,15 +195,15 @@
 
 				// if a value was already picked we will remember that value
 				if (ele.is('[data-timepicki-tim]')) {
-					ti = Number(ele.attr('data-timepicki-tim'));
-					mi = Number(ele.attr('data-timepicki-mini'));
-					mer = ele.attr('data-timepicki-meri');
+					state.ti = ti = Number(ele.attr('data-timepicki-tim'));
+					state.mi = mi = Number(ele.attr('data-timepicki-mini'));
+					state.mer = mer = ele.attr('data-timepicki-meri');
 
 				// developer can specify a custom starting value
 				} else if (typeof start_time === 'object') {
-					ti = Number(start_time[0]);
-					mi = Number(start_time[1]);
-					mer = start_time[2];
+					state.ti = ti = Number(start_time[0]);
+					state.mi = mi = Number(start_time[1]);
+					state.mer = mer = start_time[2];
 
 				// default is we will use the current time
 				} else {
