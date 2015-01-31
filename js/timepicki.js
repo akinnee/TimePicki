@@ -8,6 +8,15 @@
 
 		var defaults = {
 			format_output: function(tim, mini, meri) {
+				tim = String(tim);
+				mini = String(mini);
+				meri = String(meri);
+				if (tim.length < 2) {
+					tim = "0" + tim;
+				}
+				if (mini.length < 2) {
+					mini = "0" + mini;
+				}
 				return tim + " : " + mini + " : " + meri;
 			},
 			increase_direction: 'down',
