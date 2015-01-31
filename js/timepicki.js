@@ -141,10 +141,14 @@
 				// use previous state or defaults
 				// if not empty
 				if (!$.isEmptyObject(state)) {
-					if (!tim.length) {
+					// NOTE: tim = Number(tim) is set on purpose here
+					// to avoid casting to a number twice
+					if (!tim.length || !$.isNumeric(tim = Number(tim))) {
 						tim = String(state.ti);
 					}
-					if (!mini.length) {
+					// NOTE: mini = Number(mini) is set on purpose here
+					// to avoid casting to a number twice
+					if (!mini.length || !$.isNumeric(mini = Number(mini))) {
 						mini = String(state.mi);
 					}
 					if (!meri.length) {
@@ -153,7 +157,7 @@
 				}
 
 				// still empty? we can't format an empty input
-				if (!tim.length || !mini.length || !meri.length) {
+				if ((!tim.length && !$.isNumeric(tim)) || (!mini.length && !$.isNumeric(mini)) || !meri.length) {
 					return;
 				}
 				tim = Number(tim);
@@ -161,13 +165,13 @@
 
 				// enforce the min-max values
 				// hour
-				if (tim < settings.min_hour_value) {
+				if (tim < settings.min_hour_value || !$.isNumeric(tim)) {
 					tim = settings.min_hour_value;
 				} else if (tim > settings.max_hour_value) {
 					tim = settings.max_hour_value;
 				}
 				// minute
-				if (mini < 0) {
+				if (mini < 0 || !$.isNumeric(mini)) {
 					mini = 0;
 				} else if (mini > 59) {
 					mini = 59;
