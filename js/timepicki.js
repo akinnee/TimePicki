@@ -6,9 +6,6 @@
 
 	$.fn.timepicki = function(options) {
 
-		// for saving the state of the selected time
-		var state = {};
-
 		var defaults = {
 			format_output: function(tim, mini, meri) {
 				return tim + " : " + mini + " : " + meri;
@@ -22,6 +19,9 @@
 		var settings = $.extend({}, defaults, options);
 
 		return this.each(function() {
+
+			// for saving the state of the selected time
+			var state = {};
 
 			var ele = $(this);
 			var ele_hei = ele.outerHeight();
@@ -134,19 +134,52 @@
 
 			function set_value(event, close) {
 				// use input values to set the time
-				var tim = ele_next.find(".ti_tx input").val();
-				var mini = ele_next.find(".mi_tx input").val();
-				var meri = ele_next.find(".mer_tx input").val();
+				var tim = String(ele_next.find(".ti_tx input").val());
+				var mini = String(ele_next.find(".mi_tx input").val());
+				var meri = String(ele_next.find(".mer_tx input").val());
 
 				// use previous state or defaults
-				if (!tim.length) {
-					tim = state.ti;
+				// if not empty
+				if (!$.isEmptyObject(state)) {
+					if (!tim.length) {
+						tim = String(state.ti);
+					}
+					if (!mini.length) {
+						mini = String(state.mi);
+					}
+					if (!meri.length) {
+						meri = String(state.mer);
+					}
 				}
-				if (!mini.length) {
-					mini = state.mi;
+
+				// still empty? we can't format an empty input
+				if (!tim.length || !mini.length || !meri.length) {
+					return;
 				}
-				if (!meri.length) {
-					meri = state.mer;
+				tim = Number(tim);
+				mini = Number(mini);
+
+				// enforce the min-max values
+				// hour
+				if (tim < settings.min_hour_value) {
+					tim = settings.min_hour_value;
+				} else if (tim > settings.max_hour_value) {
+					tim = settings.max_hour_value;
+				}
+				// minute
+				if (mini < 0) {
+					mini = 0;
+				} else if (mini > 59) {
+					mini = 59;
+				}
+				// meridian
+				var meriLowerCase = meri.toLowerCase();
+				if (meriLowerCase !== 'am' && meriLowerCase !== 'pm') {
+					if (meriLowerCase.indexOf('a') !== -1) {
+						meri = 'AM';
+					} else {
+						meri = 'PM';
+					}
 				}
 
 				// store the value so we can set the initial value
@@ -156,10 +189,12 @@
 				ele.attr('data-timepicki-meri', meri);
 
 				// set the formatted value
-				ele.val(settings.format_output(tim, mini, meri));
-				ele.trigger('keyup');
+				ele.val(settings.format_output(Number(tim), Number(mini), String(meri)));
+
+				// trigger events to any validation on the input will work
 				ele.trigger('keydown');
-				ele.change();
+				ele.trigger('keyup');
+				ele.trigger('change');
 
 				if (close) {
 					close_timepicki();
